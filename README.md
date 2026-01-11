@@ -28,5 +28,7 @@ update: :D I did it! It now gets about 60 fps all the time! The engine and examp
   - [x] Tiles also no longer create an offsreen canvas for every tile for every frame... (it was just for testing and becuase I was too lazy to scroll up the the constructor, I swear 😅)
   - [ ] Tile data / more tile uniqueness?
 - [ ] utilities
+  - [ ] Placing tiles from outside tha class
+  - [ ] Great placing system that includes bounds checking
 - [x] Being stupid...
 - [x] ...And somehow still getting a solid 59 fps on a garbage computer!
