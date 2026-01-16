@@ -1,6 +1,34 @@
 // Main file: GTE.js v1.0
+/*
+Class paramaters
+canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered
+bgImg: HTMLImageElement - Image for the background
+tilesConfig: Object{
+    smoothing: boolean - image smothing enabled.
+    atlas: HTMLImageElement - texture atlas to use.
+    w: Number - Width in pixels of each texture on the atlas
+    h: Number - Height in pixels of each texture on the atlas
+    items: Object{ - include as many entries here as needed, each key name being the name of a tile. This links names to textures.
+      your_tile_name: {
+        x: Number - X position in the texture atlas. Based on tilesConfig.w, so it is the index of the tile's top left corner
+        y: Number - Y position in the texture atlas. Based on tilesConfig.h, so it is the index of the tile's top left corner
+      },
+    }
+}
+?bounds: Object{
+    xmax: Number - in world cords of distance for bounds
+    ymax: Number - in world cords of distance for bounds
+    xmin: Number - in world cords of distance for bounds
+    ymin: Number - in world cords of distance for bounds
+    zoomMax: Number - Multiplier of how far the user can zoom in - WARNING, this can only be about 1.5 before things break (might be patched later), so just update tileSize to have it make sense.
+    zoomMin: Number - Multiplier of how far the user can zoom out
+}
+?tiles: Array - Default starting tiles
+?tileSize: Number - Size in pixels of each tile on default 1x zoom
+*/
+
 class GTEtileEngine {
-    constructor(canvas, bgImg, tilesConfig, bounds = !"set to default later", tiles = [], tileSize = 128) {
+    constructor(canvas, bgImg, tilesConfig, bounds = !"This is set to itsdefault later", tiles = [], tileSize = 128) {
         this.keys = {};
         this.bounds = bounds||{ xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
         this.tilesConfig = tilesConfig;
