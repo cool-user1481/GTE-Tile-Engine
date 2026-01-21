@@ -21,6 +21,7 @@ Put this <i>before</i> your code.
 ### How to use?
 Take this as an example as a basis for your usage.
 ```Javascript
+// Code sample was written for v1.1.0, but higher patch and minor release numbers may still have compatability
 let atlas = new Image();
 atlas.src = "The image of your texture atlas here!"; 
 let bgImg = new Image();
