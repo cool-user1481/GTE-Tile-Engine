@@ -9,7 +9,7 @@ Perfect for making tile games such as:
 * Pixel games!
 * tile survival games!
 * city builders!
-* Idk, anything with tiles and o player!
+* Idk, anything with tiles and a player!
 
 All the documentation is in the `engine.js` file, but here is some more!<br>
 ## Quickstart
