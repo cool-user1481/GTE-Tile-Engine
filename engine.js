@@ -1,9 +1,9 @@
-// Main file: GTE.js v1.0
+// Main file: GTE.js v1.1
 /*
-Class paramaters
-canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered
-bgImg: HTMLImageElement - Image for the background
-tilesConfig: Object{
+#Class paramaters:
+ canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered
+ bgImg: HTMLImageElement - Image for the background
+ tilesConfig: Object{
     smoothing: boolean - image smothing enabled.
     atlas: HTMLImageElement - texture atlas to use.
     w: Number - Width in pixels of each texture on the atlas
@@ -13,8 +13,13 @@ tilesConfig: Object{
         x: Number - X position in the texture atlas. Based on tilesConfig.w, so it is the index of the tile's top left corner
         y: Number - Y position in the texture atlas. Based on tilesConfig.h, so it is the index of the tile's top left corner
       },
+      different_tile_name: {
+        x: Number - X position in the texture atlas. Based on tilesConfig.w, so it is the index of the tile's top left corner
+        y: Number - Y position in the texture atlas. Based on tilesConfig.h, so it is the index of the tile's top left corner
+      },
     }
 }
+params: Object{ - has all the optional config
 ?bounds: Object{
     xmax: Number - in world cords of distance for bounds
     ymax: Number - in world cords of distance for bounds
@@ -25,29 +30,26 @@ tilesConfig: Object{
 }
 ?tiles: Array - Default starting tiles
 ?tileSize: Number - Size in pixels of each tile on default 1x zoom
+}
+
+#Events:
+
+events are dispatched to GTEtileEngine.eventEmitter
+with events of "tilePlace" and "tileDelete", and event of {detail: {x, y, name}}
+It is best to use these with a handler, rather than doing post-place/delete events in the click handling section, in case the tile placement/delete fails.
 */
 
 class GTEtileEngine {
-    constructor(canvas, bgImg, tilesConfig, bounds = !"This is set to itsdefault later", tiles = [], tileSize = 128) {
-        this.keys = {};
-        this.bounds = bounds||{ xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
-        this.tilesConfig = tilesConfig;
-        this.eventEmitter = new EventTarget();
-        this.tiles = [{
-                name: "inferno_block",
-                x: 0,
-                y: 0,
-            },
-            {
-                x: 1,
-                y: 1,
-                name: "wood_chest"
-            }
-        ];
-        this.tileSize = tileSize;
+    constructor(canvas, bgImg, tilesConfig, params) {
         this.canvas = canvas;
-        this.ctx = this.canvas.getContext('2d');
         this.bgImg = bgImg;
+        this.tilesConfig = tilesConfig;
+        this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
+        this.tiles = params.tiles||tiles;
+        this.tileSize = params.tileSize || 128;
+        this.eventEmitter = new EventTarget();
+        this.ctx = this.canvas.getContext('2d');
+        this.keys = {};
         this.OSC = document.createElement('canvas');
         this.Octx = this.OSC.getContext('2d');
         this.OSC.width = this.bgImg.naturalWidth;
@@ -70,17 +72,6 @@ class GTEtileEngine {
         this.resize();
         this.initEvents();
         this.loop();
-        this.tiles.push({
-            x: this.bounds.xmax - 1,
-            y: this.bounds.ymax - 1,
-            name: "water"
-        })
-        this.tiles.push({
-            x: this.bounds.xmin,
-            y: this.bounds.ymin,
-            name: "inferno_block"
-        })
-
     }
 
 
@@ -132,6 +123,7 @@ class GTEtileEngine {
         ctx.fillStyle = pat;
         ctx.fill();
         // Holy, after 5+ hours of work, the bg section is done and good enough.
+        // And I spent another 2 hours -_-
 
         this.tiles.forEach((element, index) => {
             const config = this.tilesConfig;
