@@ -50,7 +50,7 @@ let game; // Define game outside callbacks to make it usable.
 
 function clickHandler(e){
     if (e.button === 0) { // Left click
-        game.createTileAtMouse("tile"); // Place tile on left click
+        game.createTileAtMouse("tile"); // Place tile of id tile (defined in tilesConfig) on left click
     }
     if (e.button === 1) { // Middle click
         e.preventDefault(); // Prevent scrolling
