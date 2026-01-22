@@ -1,9 +1,9 @@
 // Main file: GTE.js v1.1
 /*
-#Class paramaters:
- canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered
- bgImg: HTMLImageElement - Image for the background
- tilesConfig: Object{
+params: Object{ - has all the optional config
+ canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered. This is technicaly optional with default of querySelector(canvas), but plz don't do that.
+ bgImg: HTMLImageElement - Image for the background. This is technicaly optional with default of some random image, but plz don't do that.
+ tilesConfig: Object{ - A configuration for the tile atlas. This is technicaly optional with default of some random values, but plz don't do that.
     smoothing: boolean - image smothing enabled.
     atlas: HTMLImageElement - texture atlas to use.
     w: Number - Width in pixels of each texture on the atlas
@@ -19,7 +19,7 @@
       },
     }
 }
-params: Object{ - has all the optional config
+
 ?bounds: Object{
     xmax: Number - in world cords of distance for bounds
     ymax: Number - in world cords of distance for bounds
@@ -40,12 +40,12 @@ It is best to use these with a handler, rather than doing post-place/delete even
 */
 
 class GTEtileEngine {
-    constructor(canvas, bgImg, tilesConfig, params) {
-        this.canvas = canvas;
+    constructor(canvas, bgImg, tilesConfig, params={}) {
+        this.canvas = canvas||document.querySelector('canvas');
         this.bgImg = bgImg;
         this.tilesConfig = tilesConfig;
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
-        this.tiles = params.tiles||tiles;
+        this.tiles = params.tiles || [];
         this.tileSize = params.tileSize || 128;
         this.eventEmitter = new EventTarget();
         this.ctx = this.canvas.getContext('2d');
