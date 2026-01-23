@@ -40,10 +40,32 @@ It is best to use these with a handler, rather than doing post-place/delete even
 */
 
 class GTEtileEngine {
-    constructor(canvas, bgImg, tilesConfig, params={}) {
+    constructor(params={}) {
         this.canvas = canvas||document.querySelector('canvas');
-        this.bgImg = bgImg;
-        this.tilesConfig = tilesConfig;
+        let defaultImg;
+        if(params.bgImg && typeof params.bgImg === "Object"){
+            this.bgImg = bgImg;
+        } else{
+            if(params.bgImg && typeof params.bgImg === "String"){
+                let temp = new Image();
+                temp.src = params.bgImg;
+                this.bgImg = temp;
+            }
+        } else{
+            if(!params.bgImg){
+                defaultImg = new Image();
+                defaultImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png"
+            }
+        }
+        this.tilesConfig = params.tilesConfig || {
+            smoothing: false,
+            atlas: defaultImg,
+            w: 64,
+            h: 64,
+            items: {
+                tile: {x: 0, y:0}
+            },
+        };
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
         this.tiles = params.tiles || [];
         this.tileSize = params.tileSize || 128;
