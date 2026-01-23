@@ -1,9 +1,9 @@
 /*
-params: Object{ - has all the optional config
+params: Object{ - has all the paramaters
  canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered. This is technicaly optional with default of querySelector(canvas), but plz don't do that.
- bgImg: HTMLImageElement - Image for the background. This is technicaly optional with default of some random image, but plz don't do that.
+ bgImg: HTMLImageElement|URL:string - Image for the background. This is technicaly optional with default of some random image, but plz don't do that.
  tilesConfig: Object{ - A configuration for the tile atlas. This is technicaly optional with default of some random values, but plz don't do that.
-    smoothing: boolean - image smothing enabled.
+    smoothing: boolean - image smothing enabled. Aslo affects background smoothing
     atlas: HTMLImageElement - texture atlas to use.
     w: Number - Width in pixels of each texture on the atlas
     h: Number - Height in pixels of each texture on the atlas
@@ -27,8 +27,10 @@ params: Object{ - has all the optional config
     zoomMax: Number - Multiplier of how far the user can zoom in - WARNING, this can only be about 1.5 before things break (might be patched later), so just update tileSize to have it make sense.
     zoomMin: Number - Multiplier of how far the user can zoom out
 }
-?tiles: Array - Default starting tiles
-?tileSize: Number - Size in pixels of each tile on default 1x zoom
+?tiles: Array - Default starting tiles - deafault: []
+?tileSize: Number - Size in pixels of each tile on default 1x zoom - default: 128
+?movementEnabled: Boolean - Whether or not the user can move arround - deafult: true
+?zoomEnabled: Bollean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
 }
 
 #Events:
@@ -40,30 +42,41 @@ It is best to use these with a handler, rather than doing post-place/delete even
 
 class GTEtileEngine {
     constructor(params={}) {
-        this.canvas = canvas||document.querySelector('canvas');
-        let defaultImg;
-        if(params.bgImg && typeof params.bgImg === "Object"){
+        this.canvas = params.canvas||document.querySelector('canvas');
+        if(params.bgImg && typeof params.bgImg === "object"){
             this.bgImg = bgImg;
-        } else {
-            if(params.bgImg && typeof params.bgImg === "String"){
-                let temp = new Image();
-                temp.src = params.bgImg;
-                this.bgImg = temp;
-            }
-            if(!params.bgImg){
-                defaultImg = new Image();
-                defaultImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png";
-            }
         }
-        this.tilesConfig = params.tilesConfig || {
+        
+        if(params.bgImg && typeof params.bgImg === "string"){
+            let temp = new Image();
+            temp.src = params.bgImg;
+            this.bgImg = temp;
+        }
+        if(!params.bgImg){
+            console.warn("[GTE] bgImg not selected, using default.");
+            let temp = new Image();
+            temp.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/2013-morbihan-ile-berder-rankosol-granite0109.jpg/500px-2013-morbihan-ile-berder-rankosol-granite0109.jpg";
+            this.bgImg = temp;
+        }
+        
+        if(params.tilesConfig){
+            this.tilesConfig = params.tilesConfig;
+        } else {
+          let tempAtlas = new Image();
+          tempAtlas.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg/500px-A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg"
+          this.tilesConfig = {
             smoothing: false,
-            atlas: defaultImg,
+            atlas: tempAtlas,
             w: 64,
             h: 64,
             items: {
                 tile: {x: 0, y:0}
             },
-        };
+          };
+        }
+        
+        this.enableMovement = params.enableMovement ?? true;
+        this.enableZoom = params.enableZoom ?? this.enableMovement;
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
         this.tiles = params.tiles || [];
         this.tileSize = params.tileSize || 128;
@@ -128,7 +141,7 @@ class GTEtileEngine {
 
         const pat = ctx.createPattern(this.OSC, "repeat");
         const matrix = new DOMMatrix();
-        matrix.translateSelf(this.camera.x * 1, this.camera.y * 1); // X offset, Y offset
+        matrix.translateSelf(this.camera.x, this.camera.y); // X offset, Y offset
         pat.setTransform(matrix);
         ctx.save();
         const scaleFactor = this.camera.zoom;
@@ -148,12 +161,12 @@ class GTEtileEngine {
         this.tiles.forEach((element, index) => {
             const config = this.tilesConfig;
             this.ctx.imageSmoothingEnabled = config.smoothing;
-            let screenX = this.worldToCanvasCordsX(element.x) - 0;
-            let screenY = this.worldToCanvasCordsY(element.y) - 0;
+            let screenX = this.worldToCanvasCordsX(element.x);
+            let screenY = this.worldToCanvasCordsY(element.y);
             const offset = 0.3;
             let scaledTileSize = this.tileSize * this.camera.zoom + offset;
             if(!config.items[element.name]) {
-                alert(`error: the block requested, ${element.name}, does not have a match in the config.`)
+                alert(`[GTE MAJOR ERROR] error: the block requested, ${element.name}, does not have a match in the config.`)
                 throw new Error(`error: the block requested, ${element.name}, does not have a match in the config.`)
             }
             ctx.drawImage(
@@ -187,17 +200,18 @@ class GTEtileEngine {
 
     keyFunction() {
         this.camera.zoom = Math.min(Math.max(this.bounds.zoomMin, this.camera.zoom), this.bounds.zoomMax);
-        this.camera.x = Math.min(Math.max(this.bounds.xmin * this.tileSize - this.canvas.getBoundingClientRect().left + this.canvas.width * (1 / this.camera.zoom), this.camera.x), this.bounds.xmax * this.tileSize);
-        this.camera.y = Math.min(Math.max(this.bounds.ymin * this.tileSize - this.canvas.getBoundingClientRect().top + this.canvas.height * (1 / this.camera.zoom), this.camera.y), this.bounds.ymax * this.tileSize);
-        let moveSpeed = 15 / this.camera.zoom;
         let zoomSpeed = this.camera.zoom ** 0.5 / 50;
+        this.zv /= 1.25;
+        this.camera.zoom *= this.zv + 1;
+      if(this.enableMovement){
+        let moveSpeed = 15 / this.camera.zoom;
+        this.camera.y = Math.min(Math.max(this.bounds.ymin * this.tileSize - this.canvas.getBoundingClientRect().top + this.canvas.height * (1 / this.camera.zoom), this.camera.y), this.bounds.ymax * this.tileSize);
+        this.camera.x = Math.min(Math.max(this.bounds.xmin * this.tileSize - this.canvas.getBoundingClientRect().left + this.canvas.width * (1 / this.camera.zoom), this.camera.x), this.bounds.xmax * this.tileSize);
 
         this.xv /= 1.45 / (((this.camera.zoom - 1) / 4) + 1);
         this.yv /= 1.45 / (((this.camera.zoom - 1) / 4) + 1);
-        this.zv /= 1.25;
         this.camera.x += this.xv;
         this.camera.y += this.yv;
-        this.camera.zoom *= this.zv + 1;
 
         if(this.keys.ArrowLeft || this.keys.a) {
             this.xv += moveSpeed;
@@ -211,12 +225,15 @@ class GTEtileEngine {
         if(this.keys.ArrowDown || this.keys.s) {
             this.yv -= moveSpeed;
         }
+      }
+      if(this.enableZoom){
         if(this.keys.PageUp) {
             this.zv += zoomSpeed;
         }
         if(this.keys.PageDown) {
             this.zv -= zoomSpeed;
         }
+      }
     }
 
     handleMouseMove(e) {
@@ -232,7 +249,7 @@ class GTEtileEngine {
 
     handleWheel(e) {
         e.preventDefault();
-        this.zv += e.deltaY * this.camera.zoom ** 0.001 / -2000;
+        this.zv += (e.deltaY * this.camera.zoom ** 0.001 / -2000) * this.enableZoom;
     }
 
     handleKeyDown(e) {
@@ -273,10 +290,10 @@ class GTEtileEngine {
                 });
                 this.eventEmitter.dispatchEvent(event);
             } else {
-                throw new Error("Placement out of bounds.");
+                console.warn("Placement out of bounds.");
             }
         } else {
-            throw new Error("Placement space already occupied.")
+            console.warn("Placement space already occupied.")
         }
     }
 
