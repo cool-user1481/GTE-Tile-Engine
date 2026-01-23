@@ -21,16 +21,16 @@ Put this <i>before</i> your code.
 ### How to use?
 Take this as an example as a basis for your usage.
 ```Javascript
-// Code sample was written for v1.1.0, but higher patch and minor release numbers may still have compatability
+// Code sample was written for v1.2.0, but higher patch and minor release numbers may still have compatability
 let atlas = new Image();
-atlas.src = "The image of your texture atlas here!"; 
+atlas.src = !"The image of your texture atlas here!" || "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png"; 
 let bgImg = new Image();
-bgImg.src = "The image of you background here!";
+bgImg.src = !"The image of you background here!" || "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png";
 const tileConfig = {
     smoothing: false, // Set to false for pixel art
     atlas: atlas,
-    w: 16, // Set this to the number of pixels wide each tile is in the atlas
-    h: 16, // Same as w, but for height
+    w: 32, // Set this to the number of pixels wide each tile is in the atlas
+    h: 32, // Same as w, but for height
     items: {
       tile: {x:0,y:0}, // This tile would be the one all the way in the top-left corner. The x and y reference the texture's position, not the number of image pixels
     },
@@ -41,7 +41,11 @@ let game; // Define game outside callbacks to make it usable.
   .then(() => {
     bgImg.decode() // Waits until the atlas and background have loaded to start the game engine
   .then(() => {
-    game = new GTEtileEngine(document.getElementById('canvas'), bgImg, tileConfig); // Create instance with the canvas, background image, and tile config
+    game = new GTEtileEngine({
+        cavnas: document.getElementById('canvas'),
+        bgImg: bgImg,
+        tileConfig: tileConfig
+    }); // Create instance with the canvas, background image, and tile config
     game.canvas.addEventListener("mousedown", clickHandler) // Add a click handler on the canvas to do whatever
     game.eventEmitter.addEventListener("tilePlace", (e) => placeHandler(e)) // This gets used after a tile is successfuly placed.
     game.eventEmitter.addEventListener("tileDelete", (e) => deleteHandler(e)) // Same as tilePlace, but deleted.
