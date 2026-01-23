@@ -1,4 +1,3 @@
-// Main file: GTE.js v1.1
 /*
 params: Object{ - has all the optional config
  canvas: HTMLCanvasElement - the canvas to which you want the game engine rendered. This is technicaly optional with default of querySelector(canvas), but plz don't do that.
@@ -54,7 +53,7 @@ class GTEtileEngine {
         } else{
             if(!params.bgImg){
                 defaultImg = new Image();
-                defaultImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png"
+                defaultImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png";
             }
         }
         this.tilesConfig = params.tilesConfig || {
