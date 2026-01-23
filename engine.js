@@ -44,13 +44,12 @@ class GTEtileEngine {
         let defaultImg;
         if(params.bgImg && typeof params.bgImg === "Object"){
             this.bgImg = bgImg;
-        } else{
+        } else {
             if(params.bgImg && typeof params.bgImg === "String"){
                 let temp = new Image();
                 temp.src = params.bgImg;
                 this.bgImg = temp;
             }
-        } else{
             if(!params.bgImg){
                 defaultImg = new Image();
                 defaultImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png";
