@@ -88,6 +88,8 @@ class GTEtileEngine {
         this.OSC.width = this.bgImg.naturalWidth;
         this.OSC.height = this.bgImg.naturalHeight;
         this.Octx.drawImage(this.bgImg, 0, 0);
+        this.pat = this.ctx.createPattern(this.OSC, "repeat");
+        this.matrix = new DOMMatrix();
         this.camera = {
             x: 0,
             y: 0,
@@ -135,32 +137,34 @@ class GTEtileEngine {
 
 
     render() {
+        // for some horrid reason, the game was somewhat quickly dropping fps (about 5 fps/min, once it went below 60.),
+        // and I noticed that resizing took it back up to 60. Idk why. https://xkcd.com/1700/
+        this.resize();
         let ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.imageSmoothingEnabled = true;
-
-        const pat = ctx.createPattern(this.OSC, "repeat");
-        const matrix = new DOMMatrix();
-        matrix.translateSelf(this.camera.x, this.camera.y); // X offset, Y offset
-        pat.setTransform(matrix);
+        ctx.imageSmoothingEnabled = this.tilesConfig.smoothing ?? false;
+        this.matrix.setMatrixValue("matrix(1, 0, 0, 1, 0, 0)");
+        this.matrix.translateSelf(this.camera.x, this.camera.y); // X offset, Y offset
+        this.pat.setTransform(this.matrix);
         ctx.save();
         const scaleFactor = this.camera.zoom;
         ctx.scale(scaleFactor, scaleFactor);
 
-        ctx.fillStyle = pat;
+        ctx.fillStyle = this.pat;
         ctx.fillRect(0, 0, canvas.width / scaleFactor, canvas.height / scaleFactor);
 
         ctx.restore();
 
         ctx.rect(0, 0, 10, 10);
-        ctx.fillStyle = pat;
+        ctx.fillStyle = this.pat;
         ctx.fill();
         // Holy, after 5+ hours of work, the bg section is done and good enough.
         // And I spent another 2 hours -_-
+        // Plus yet another 2 because performance. It's not even that complex.
 
         this.tiles.forEach((element, index) => {
             const config = this.tilesConfig;
-            this.ctx.imageSmoothingEnabled = config.smoothing;
+            this.ctx.imageSmoothingEnabled = config.smoothing ?? false;
             let screenX = this.worldToCanvasCordsX(element.x);
             let screenY = this.worldToCanvasCordsY(element.y);
             const offset = 0.3;
@@ -330,5 +334,7 @@ class GTEtileEngine {
         this.OSC.width = this.bgImg.naturalWidth;
         this.OSC.height = this.bgImg.naturalHeight;
         this.Octx.drawImage(this.bgImg, 0, 0);
+        this.pat = ctx.createPattern(this.OSC, "repeat");
+        this.matrix = new DOMMatrix();
     }
 }
