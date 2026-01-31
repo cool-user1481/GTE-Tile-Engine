@@ -37,6 +37,7 @@ params: Object{ - has all the paramaters
 
 events are dispatched to GTEtileEngine.eventEmitter
 with events of "tilePlace" and "tileDelete", and event of {detail: {x, y, name}}
+and event "placeError"
 It is best to use these with a handler, rather than doing post-place/delete events in the click handling section, in case the tile placement/delete fails.
 */
 
@@ -173,11 +174,18 @@ class GTEtileEngine {
                 alert(`[GTE MAJOR ERROR] error: the block requested, ${element.name}, does not have a match in the config.`)
                 throw new Error(`error: the block requested, ${element.name}, does not have a match in the config.`)
             }
+            ctx.globalAlpha = element.opacity||1;
             ctx.drawImage(
                 config.atlas,
                 config.items[element.name].x * config.w + offset, config.items[element.name].y * config.h + offset, config.w - offset * 2, config.h - offset * 2,
                 screenX, screenY, scaledTileSize, scaledTileSize
             );
+            if(element.overlay){
+                ctx.fillStyle = element.overlay;
+                ctx.fillRect(
+                    screenX, screenY, scaledTileSize, scaledTileSize
+                );
+            }
         })
 
     }
@@ -277,32 +285,43 @@ class GTEtileEngine {
         return returnValue;
     }
 
-    createTile(x, y, name) {
+    createTile(x, y, name, overlay, opacity, data) {
         if(!this.spaceOccupied(x, y)) {
             if(x >= this.bounds.xmin && x < this.bounds.xmax && y >= this.bounds.ymin && y < this.bounds.ymax) {
                 this.tiles.push({
                     x: x,
                     y: y,
-                    name: name
+                    name: name,
+                    overlay: overlay,
+                    opacity: opacity,
+                    data: data,
                 });
                 const event = new CustomEvent("tilePlace", {
                     detail: {
                         x: x,
                         y: y,
-                        name: name,
+                        overlay: overlay,
+                        opacity: opacity,
+                        data: data,
                     },
                 });
                 this.eventEmitter.dispatchEvent(event);
             } else {
-                console.warn("Placement out of bounds.");
+                const event = new CustomEvent("placeError", {
+                    detail: {id: "bounds", name: "Placement out of bounds."}
+                });
+                this.eventEmitter.dispatchEvent(event);
             }
         } else {
-            console.warn("Placement space already occupied.")
+            const event = new CustomEvent("placeError", {
+                detail: {id: "occupied", name: "Tile already occupied."}
+            });
+            this.eventEmitter.dispatchEvent(event);
         }
     }
 
-    createTileAtMouse(name) {
-        this.createTile(this.canvasToWorldCordsX(this.mouse.x), this.canvasToWorldCordsY(this.mouse.y), name);
+    createTileAtMouse(name, overlay, opacity, data) {
+        this.createTile(this.canvasToWorldCordsX(this.mouse.x), this.canvasToWorldCordsY(this.mouse.y), name, overlay, opacity, data);
     }
 
     deleteTile(x, y) {
