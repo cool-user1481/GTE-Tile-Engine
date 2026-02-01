@@ -186,8 +186,10 @@ class GTEtileEngine {
                     screenX, screenY, scaledTileSize, scaledTileSize
                 );
             }
-        })
-
+        });
+        if(this.postRender){
+           this.postRender();
+        }
     }
 
     handleMouseDown(e) {
