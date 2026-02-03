@@ -268,7 +268,7 @@ class GTEtileEngine {
 
     handleKeyDown(e) {
         this.keys[e.key] = true;
-        if(e.key.startsWith("Arrow") || e.key.startsWith("Page")) {
+        if(e.key.startsWith("ArrowUp") || e.key.startsWith("ArrowDown") || e.key.startsWith("Page")) {
             e.preventDefault();
         }
     }
