@@ -302,6 +302,7 @@ class GTEtileEngine {
                     detail: {
                         x: x,
                         y: y,
+                        name: name,
                         overlay: overlay,
                         opacity: opacity,
                         data: data,
