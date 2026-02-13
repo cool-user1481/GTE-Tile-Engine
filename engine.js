@@ -356,7 +356,7 @@ class GTEtileEngine {
         this.OSC.width = this.bgImg.naturalWidth;
         this.OSC.height = this.bgImg.naturalHeight;
         this.Octx.drawImage(this.bgImg, 0, 0);
-        this.pat = ctx.createPattern(this.OSC, "repeat");
+        this.pat = this.ctx.createPattern(this.OSC, "repeat");
         this.matrix = new DOMMatrix();
     }
 }
