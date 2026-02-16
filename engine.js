@@ -155,7 +155,7 @@ class GTEtileEngine {
         ctx.scale(scaleFactor, scaleFactor);
 
         ctx.fillStyle = this.pat;
-        ctx.fillRect(0, 0, canvas.width / scaleFactor, canvas.height / scaleFactor);
+        ctx.fillRect(0, 0, this.canvas.width / scaleFactor, this.canvas.height / scaleFactor);
 
         ctx.restore();
 
