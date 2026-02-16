@@ -16,16 +16,16 @@ All the documentation is in the `engine.js` file, but here is some more!<br>
 ### How to embed?
 Put this <i>before</i> your code.
 ```HTML
-<script src="https://cdn.jsdelivr.net/gh/cool-user1481/GTE-Tile-Engine@latest/engine.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/cool-user1481/GTE-Tile-Engine@1.2/engine.min.js"></script>
 ```
 ### How to use?
 Take this as an example as a basis for your usage.
 ```Javascript
-// Code sample was written for v1.2.0, but higher patch and minor release numbers may still have compatability
+// Code sample was written for v1.2.7, but higher patch and minor release numbers may still have compatability
 let atlas = new Image();
 atlas.src = !"The image of your texture atlas here!" || "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png"; 
 let bgImg = new Image();
-bgImg.src = !"The image of you background here!" || "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png";
+bgImg.src = !"The image of your background here!" || "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/PlaceholderLC.png/64px-PlaceholderLC.png";
 const tileConfig = {
     smoothing: false, // Set to false for pixel art
     atlas: atlas,
@@ -36,21 +36,15 @@ const tileConfig = {
     },
 }
 
-let game; // Define game outside callbacks to make it usable.
- atlas.decode()
-  .then(() => {
-    bgImg.decode() // Waits until the atlas and background have loaded to start the game engine
-  .then(() => {
-    game = new GTEtileEngine({
-        cavnas: document.getElementById('canvas'),
-        bgImg: bgImg,
-        tileConfig: tileConfig
-    }); // Create instance with the canvas, background image, and tile config
-    game.canvas.addEventListener("mousedown", clickHandler) // Add a click handler on the canvas to do whatever
-    game.eventEmitter.addEventListener("tilePlace", (e) => placeHandler(e)) // This gets used after a tile is successfuly placed.
-    game.eventEmitter.addEventListener("tileDelete", (e) => deleteHandler(e)) // Same as tilePlace, but deleted.
-  });
- });
+let game;
+game = new GTEtileEngine({ // Create instance with the canvas, background image, and tile config
+    cavnas: document.getElementById('canvas'),
+    //bgImg: bgImg,  // bgImg commented out for engine defaults
+    tileConfig: tileConfig
+}); 
+game.canvas.addEventListener("mousedown", clickHandler) // Add a click handler on the canvas to do whatever
+game.eventEmitter.addEventListener("tilePlace", (e) => placeHandler(e)) // This gets used after a tile is successfuly placed.
+game.eventEmitter.addEventListener("tileDelete", (e) => deleteHandler(e)) // Same as tilePlace, but deleted.
 
 
 function clickHandler(e){
