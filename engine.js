@@ -30,7 +30,8 @@ params: Object{ - has all the paramaters
 ?tiles: Array - Default starting tiles - deafault: []
 ?tileSize: Number - Size in pixels of each tile on default 1x zoom - default: 128
 ?movementEnabled: Boolean - Whether or not the user can move arround - deafult: true
-?zoomEnabled: Bollean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
+?zoomEnabled: Boolean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
+?loadCallback: Function - runs after the engine is ready to run
 }
 
 #Events:
@@ -75,6 +76,7 @@ class GTEtileEngine {
             },
           };
         }
+        params.loadCallback =?? ()=>{};
         this.enableMovement = params.enableMovement ?? true;
         this.enableZoom = params.enableZoom ?? this.enableMovement;
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
@@ -84,6 +86,7 @@ class GTEtileEngine {
         this.ctx = this.canvas.getContext('2d');
         this.keys = {};
         this.bgImg.decode().then(() => {
+         params.loadCallback();
          this.tilesConfig.atlas.decode().then(() => {
           this.OSC = document.createElement('canvas');
           this.Octx = this.OSC.getContext('2d');
