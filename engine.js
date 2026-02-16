@@ -66,10 +66,10 @@ class GTEtileEngine {
           let tempAtlas = new Image();
           tempAtlas.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg/500px-A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg"
           this.tilesConfig = {
-            smoothing: false,
+            smoothing: true,
             atlas: tempAtlas,
-            w: 64,
-            h: 64,
+            w: 500,
+            h: 500,
             items: {
                 tile: {x: 0, y:0}
             },
@@ -107,7 +107,7 @@ class GTEtileEngine {
         this.zv = 0;
         this.resize();
         this.bgImg.decode().then(() => {
-         this.atlas.decode().then(() => {
+         this.tilesConfig.atlas.decode().then(() => {
           this.initEvents();
           this.loop();
          })
