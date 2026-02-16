@@ -30,8 +30,7 @@ params: Object{ - has all the paramaters
 ?tiles: Array - Default starting tiles - deafault: []
 ?tileSize: Number - Size in pixels of each tile on default 1x zoom - default: 128
 ?movementEnabled: Boolean - Whether or not the user can move arround - deafult: true
-?zoomEnabled: Boolean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
-?loadCallback: Function - runs after the engine is ready to run
+?zoomEnabled: Bollean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
 }
 
 #Events:
@@ -67,16 +66,16 @@ class GTEtileEngine {
           let tempAtlas = new Image();
           tempAtlas.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg/500px-A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg"
           this.tilesConfig = {
-            smoothing: true,
+            smoothing: false,
             atlas: tempAtlas,
-            w: 500,
-            h: 500,
+            w: 64,
+            h: 64,
             items: {
                 tile: {x: 0, y:0}
             },
           };
         }
-        params.loadCallback = params.loadCallback ?? ()=>{};
+        
         this.enableMovement = params.enableMovement ?? true;
         this.enableZoom = params.enableZoom ?? this.enableMovement;
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
@@ -85,35 +84,30 @@ class GTEtileEngine {
         this.eventEmitter = new EventTarget();
         this.ctx = this.canvas.getContext('2d');
         this.keys = {};
-        this.bgImg.decode().then(() => {
-         params.loadCallback();
-         this.tilesConfig.atlas.decode().then(() => {
-          this.OSC = document.createElement('canvas');
-          this.Octx = this.OSC.getContext('2d');
-          this.OSC.width = this.bgImg.naturalWidth;
-          this.OSC.height = this.bgImg.naturalHeight;
-          this.Octx.drawImage(this.bgImg, 0, 0);
-          this.pat = this.ctx.createPattern(this.OSC, "repeat");
-          this.matrix = new DOMMatrix();
-          this.camera = {
-              x: 0,
-              y: 0,
-              zoom: 1,
-          };
-          this.mouse = {
-              x: 0,
-              y: 0,
-              worldX: 0,
-              worldY: 0,
-          }
-          this.xv = 0;
-          this.yv = 0;
-          this.zv = 0;
-          this.resize();
-          this.initEvents();
-          this.loop();
-         });
-        });
+        this.OSC = document.createElement('canvas');
+        this.Octx = this.OSC.getContext('2d');
+        this.OSC.width = this.bgImg.naturalWidth;
+        this.OSC.height = this.bgImg.naturalHeight;
+        this.Octx.drawImage(this.bgImg, 0, 0);
+        this.pat = this.ctx.createPattern(this.OSC, "repeat");
+        this.matrix = new DOMMatrix();
+        this.camera = {
+            x: 0,
+            y: 0,
+            zoom: 1,
+        };
+        this.mouse = {
+            x: 0,
+            y: 0,
+            worldX: 0,
+            worldY: 0,
+        }
+        this.xv = 0;
+        this.yv = 0;
+        this.zv = 0;
+        this.resize();
+        this.initEvents();
+        this.loop();
     }
 
 
