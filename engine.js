@@ -76,7 +76,7 @@ class GTEtileEngine {
             },
           };
         }
-        params.loadCallback =?? ()=>{};
+        params.loadCallback = params.loadCallback ?? ()=>{};
         this.enableMovement = params.enableMovement ?? true;
         this.enableZoom = params.enableZoom ?? this.enableMovement;
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
