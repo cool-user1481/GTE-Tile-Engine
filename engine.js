@@ -75,43 +75,42 @@ class GTEtileEngine {
             },
           };
         }
-        
-        this.enableMovement = params.enableMovement ?? true;
-        this.enableZoom = params.enableZoom ?? this.enableMovement;
-        this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
-        this.tiles = params.tiles || [];
-        this.tileSize = params.tileSize || 128;
-        this.eventEmitter = new EventTarget();
-        this.ctx = this.canvas.getContext('2d');
-        this.keys = {};
-        this.OSC = document.createElement('canvas');
-        this.Octx = this.OSC.getContext('2d');
-        this.OSC.width = this.bgImg.naturalWidth;
-        this.OSC.height = this.bgImg.naturalHeight;
-        this.Octx.drawImage(this.bgImg, 0, 0);
-        this.pat = this.ctx.createPattern(this.OSC, "repeat");
-        this.matrix = new DOMMatrix();
-        this.camera = {
-            x: 0,
-            y: 0,
-            zoom: 1,
-        };
-        this.mouse = {
-            x: 0,
-            y: 0,
-            worldX: 0,
-            worldY: 0,
-        }
-        this.xv = 0;
-        this.yv = 0;
-        this.zv = 0;
-        this.resize();
         this.bgImg.decode().then(() => {
          this.tilesConfig.atlas.decode().then(() => {
+          this.enableMovement = params.enableMovement ?? true;
+          this.enableZoom = params.enableZoom ?? this.enableMovement;
+          this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
+          this.tiles = params.tiles || [];
+          this.tileSize = params.tileSize || 128;
+          this.eventEmitter = new EventTarget();
+          this.ctx = this.canvas.getContext('2d');
+          this.keys = {};
+          this.OSC = document.createElement('canvas');
+          this.Octx = this.OSC.getContext('2d');
+          this.OSC.width = this.bgImg.naturalWidth;
+          this.OSC.height = this.bgImg.naturalHeight;
+          this.Octx.drawImage(this.bgImg, 0, 0);
+          this.pat = this.ctx.createPattern(this.OSC, "repeat");
+          this.matrix = new DOMMatrix();
+          this.camera = {
+              x: 0,
+              y: 0,
+              zoom: 1,
+          };
+          this.mouse = {
+              x: 0,
+              y: 0,
+              worldX: 0,
+              worldY: 0,
+          }
+          this.xv = 0;
+          this.yv = 0;
+          this.zv = 0;
+          this.resize();
           this.initEvents();
           this.loop();
-         })
-        })
+         });
+        });
     }
 
 
