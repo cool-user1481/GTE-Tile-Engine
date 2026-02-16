@@ -106,8 +106,12 @@ class GTEtileEngine {
         this.yv = 0;
         this.zv = 0;
         this.resize();
-        this.initEvents();
-        this.loop();
+        this.bgImg.decode().then(() => {
+         this.atlas.decode().then(() => {
+          this.initEvents();
+          this.loop();
+         })
+        })
     }
 
 
