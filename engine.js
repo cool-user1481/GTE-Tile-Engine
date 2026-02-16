@@ -45,7 +45,7 @@ class GTEtileEngine {
     constructor(params={}) {
         this.canvas = params.canvas||document.querySelector('canvas');
         if(params.bgImg && typeof params.bgImg === "object"){
-            this.bgImg = bgImg;
+            this.bgImg = params.bgImg;
         }
         
         if(params.bgImg && typeof params.bgImg === "string"){
