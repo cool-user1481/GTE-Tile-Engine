@@ -9,7 +9,7 @@ Perfect for making tile games such as:
 * Pixel games!
 * tile survival games!
 * city builders!
-* Idk, anything with tiles and a player!
+* Idk, anything with tiles and a camera!
 
 All the documentation is in the `engine.js` file, but here is some more!<br>
 ## Quickstart
@@ -68,3 +68,5 @@ function deleteHandler(e){
     console.log(e.detail.name + "was deleted!") // also gives e.detail.x and y
 }
 ```
+## Licence
+This project is licenced under MIT; however, sharing this in projects that use it can make a big difference. ❤️
