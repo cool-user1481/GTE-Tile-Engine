@@ -47,7 +47,7 @@ class GTEtileEngine {
         if(params.bgImg && typeof params.bgImg === "object"){
             this.bgImg = params.bgImg;
         }
-        
+
         if(params.bgImg && typeof params.bgImg === "string"){
             let temp = new Image();
             temp.src = params.bgImg;
@@ -59,23 +59,23 @@ class GTEtileEngine {
             temp.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/2013-morbihan-ile-berder-rankosol-granite0109.jpg/500px-2013-morbihan-ile-berder-rankosol-granite0109.jpg";
             this.bgImg = temp;
         }
-        
+
         if(params.tilesConfig){
             this.tilesConfig = params.tilesConfig;
         } else {
           let tempAtlas = new Image();
           tempAtlas.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg/500px-A_curious_Welsh_Mountain_sheep_%28Ovis_aries%29.jpg"
           this.tilesConfig = {
-            smoothing: false,
+            smoothing: true,
             atlas: tempAtlas,
-            w: 64,
-            h: 64,
+            w: 500,
+            h: 500,
             items: {
                 tile: {x: 0, y:0}
             },
           };
         }
-        
+        params.loadCallback = params.loadCallback || (()=>{});
         this.enableMovement = params.enableMovement ?? true;
         this.enableZoom = params.enableZoom ?? this.enableMovement;
         this.bounds = params.bounds || { xmax: 16, ymax: 16, xmin: -16, ymin: -16, zoomMax: 1.5, zoomMin: 0.125};
@@ -84,32 +84,36 @@ class GTEtileEngine {
         this.eventEmitter = new EventTarget();
         this.ctx = this.canvas.getContext('2d');
         this.keys = {};
-        this.OSC = document.createElement('canvas');
-        this.Octx = this.OSC.getContext('2d');
-        this.OSC.width = this.bgImg.naturalWidth;
-        this.OSC.height = this.bgImg.naturalHeight;
-        this.Octx.drawImage(this.bgImg, 0, 0);
-        this.pat = this.ctx.createPattern(this.OSC, "repeat");
-        this.matrix = new DOMMatrix();
-        this.camera = {
-            x: 0,
-            y: 0,
-            zoom: 1,
-        };
-        this.mouse = {
-            x: 0,
-            y: 0,
-            worldX: 0,
-            worldY: 0,
-        }
-        this.xv = 0;
-        this.yv = 0;
-        this.zv = 0;
-        this.resize();
-        this.initEvents();
-        this.loop();
+        this.bgImg.decode().then(() => {
+         this.tilesConfig.atlas.decode().then(() => {
+          params.loadCallback();
+          this.OSC = document.createElement('canvas');
+          this.Octx = this.OSC.getContext('2d');
+          this.OSC.width = this.bgImg.naturalWidth;
+          this.OSC.height = this.bgImg.naturalHeight;
+          this.Octx.drawImage(this.bgImg, 0, 0);
+          this.pat = this.ctx.createPattern(this.OSC, "repeat");
+          this.matrix = new DOMMatrix();
+          this.camera = {
+              x: 0,
+              y: 0,
+              zoom: 1,
+          };
+          this.mouse = {
+              x: 0,
+              y: 0,
+              worldX: 0,
+              worldY: 0,
+          }
+          this.xv = 0;
+          this.yv = 0;
+          this.zv = 0;
+          this.resize();
+          this.initEvents();
+          this.loop();
+         });
+        });
     }
-
 
     initEvents() {
         window.addEventListener('resize', () => this.resize());
@@ -129,17 +133,16 @@ class GTEtileEngine {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }
-
-    loop() {
+    
+    #old = 0;
+    loop(timestamp) {
         requestAnimationFrame(this.loop.bind(this));
-        this.keyFunction();
+        this.keyFunction(timestamp - this.#old);
         this.render();
+        this.#old = timestamp;
     }
 
-
     render() {
-        // for some horrid reason, the game was somewhat quickly dropping fps (about 5 fps/min, once it went below 60.),
-        // and I noticed that resizing took it back up to 60. Idk why. https://xkcd.com/1700/
         this.resize();
         let ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -156,13 +159,6 @@ class GTEtileEngine {
 
         ctx.restore();
 
-        ctx.rect(0, 0, 10, 10);
-        ctx.fillStyle = this.pat;
-        ctx.fill();
-        // Holy, after 5+ hours of work, the bg section is done and good enough.
-        // And I spent another 2 hours -_-
-        // Plus yet another 2 because performance. It's not even that complex.
-
         this.tiles.forEach((element, index) => {
             const config = this.tilesConfig;
             this.ctx.imageSmoothingEnabled = config.smoothing ?? false;
@@ -171,8 +167,7 @@ class GTEtileEngine {
             const offset = 0.3;
             let scaledTileSize = this.tileSize * this.camera.zoom + offset;
             if(!config.items[element.name]) {
-                alert(`[GTE MAJOR ERROR] error: the block requested, ${element.name}, does not have a match in the config.`)
-                throw new Error(`error: the block requested, ${element.name}, does not have a match in the config.`)
+                console.error(`error: the block requested, ${element.name}, does not have a match in the config.`)
             }
             ctx.globalAlpha = element.opacity||1;
             ctx.drawImage(
@@ -212,13 +207,14 @@ class GTEtileEngine {
         return (input * this.tileSize + this.camera.y) * this.camera.zoom;
     }
 
-    keyFunction() {
+    keyFunction(dt) {
+        dt = dt || 0;
         this.camera.zoom = Math.min(Math.max(this.bounds.zoomMin, this.camera.zoom), this.bounds.zoomMax);
-        let zoomSpeed = this.camera.zoom ** 0.5 / 50;
+        let zoomSpeed = this.camera.zoom ** 0.5 / 50 * (dt / (1000/60));
         this.zv /= 1.25;
         this.camera.zoom *= this.zv + 1;
       if(this.enableMovement){
-        let moveSpeed = 15 / this.camera.zoom;
+        let moveSpeed = 15 / this.camera.zoom * (dt / (1000/60));
         this.camera.y = Math.min(Math.max(this.bounds.ymin * this.tileSize - this.canvas.getBoundingClientRect().top + this.canvas.height * (1 / this.camera.zoom), this.camera.y), this.bounds.ymax * this.tileSize);
         this.camera.x = Math.min(Math.max(this.bounds.xmin * this.tileSize - this.canvas.getBoundingClientRect().left + this.canvas.width * (1 / this.camera.zoom), this.camera.x), this.bounds.xmax * this.tileSize);
 
