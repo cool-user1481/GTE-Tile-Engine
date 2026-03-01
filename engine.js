@@ -30,7 +30,8 @@ params: Object{ - has all the paramaters
 ?tiles: Array - Default starting tiles - deafault: []
 ?tileSize: Number - Size in pixels of each tile on default 1x zoom - default: 128
 ?movementEnabled: Boolean - Whether or not the user can move arround - deafult: true
-?zoomEnabled: Bollean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
+?zoomEnabled: Boolean - Whether of not the user can zoom - Defaults to the value of movementEnabled.
+?loadCallback: Function - A function called once all the images and engine have loaded. Inside here, put all code you want to run that needs the engine to have started.
 }
 
 #Events:
