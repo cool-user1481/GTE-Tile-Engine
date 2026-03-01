@@ -24,7 +24,7 @@ params: Object{ - has all the paramaters
     ymax: Number - in world cords of distance for bounds
     xmin: Number - in world cords of distance for bounds
     ymin: Number - in world cords of distance for bounds
-    zoomMax: Number - Multiplier of how far the user can zoom in - WARNING, this can only be about 1.5 before things break (might be patched later), so just update tileSize to have it make sense.
+    zoomMax: Number - Multiplier of how far the user can zoom in
     zoomMin: Number - Multiplier of how far the user can zoom out
 }
 ?tiles: Array - Default starting tiles - deafault: []
@@ -218,8 +218,8 @@ class GTEtileEngine {
         this.camera.y = Math.min(Math.max(this.bounds.ymin * this.tileSize - this.canvas.getBoundingClientRect().top + this.canvas.height * (1 / this.camera.zoom), this.camera.y), this.bounds.ymax * this.tileSize);
         this.camera.x = Math.min(Math.max(this.bounds.xmin * this.tileSize - this.canvas.getBoundingClientRect().left + this.canvas.width * (1 / this.camera.zoom), this.camera.x), this.bounds.xmax * this.tileSize);
 
-        this.xv /= 1.45 / (((this.camera.zoom - 1) / 4) + 1);
-        this.yv /= 1.45 / (((this.camera.zoom - 1) / 4) + 1);
+        this.xv /= 1.45;
+        this.yv /= 1.45;
         this.camera.x += this.xv;
         this.camera.y += this.yv;
 
@@ -356,3 +356,5 @@ class GTEtileEngine {
         this.matrix = new DOMMatrix();
     }
 }
+
+const GTETileEngine = GTEtileEngine; // Idk what the capitalization is supposed to be, so I'll just add this.
